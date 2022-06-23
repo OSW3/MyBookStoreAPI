@@ -92,21 +92,15 @@ class AuthorController extends AbstractController
         // Define pagination data
         $response['content']['pages'] = [];
 
-        $response['content']['pages']['current'] = "/authors?page=10";
+        $response['content']['pages']['perPage'] = 20;
+        $response['content']['pages']['current'] = 10;
         $response['content']['pages']['first'] = "/authors?page=1";
         $response['content']['pages']['prev'] = "/authors?page=9";
         $response['content']['pages']['next'] = "/authors?page=11";
         $response['content']['pages']['last'] = "/authors?page=42";
 
 
-
-
-
         return $this->json($response);
-        
-        // return $this->json([
-        //     'authors' => $authors
-        // ]);
     }
 
     #[Route('/authors', name: 'app_author_new', methods:["POST"])]
