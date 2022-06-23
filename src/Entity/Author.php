@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks()] // 1 - definir le lifecycle pour le pre-persist
 class Author
 {
+    #[Groups(['author'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -33,6 +34,7 @@ class Author
     #[ORM\Column(type: 'string', length: 1)]
     private $gender;
 
+    #[Groups(['author'])]
     #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: 'authors')]
     private $books;
 
