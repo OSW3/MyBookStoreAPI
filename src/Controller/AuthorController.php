@@ -3,18 +3,26 @@
 namespace App\Controller;
 
 use App\Repository\AuthorRepository;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AuthorController extends AbstractController
 {
-    /**
-     * @Route("/author", name="app_author", methods={"HEAD", "GET"})
-     */
-    #[Route('/author', name: 'app_author', methods:["HEAD", "GET"])]
-    public function index(SerializerInterface $serializer, AuthorRepository $authorRepository): JsonResponse
+    private $urlGenerator;
+
+    public function __construct(UrlGeneratorInterface $urlGenerator)
+    {
+        $this->urlGenerator = $urlGenerator;
+    }
+
+
+    #[Route('/authors', name: 'app_author', methods:["HEAD", "GET"])]
+    public function index(SerializerInterface $serializer, AuthorRepository $authorRepository, Request $request): JsonResponse
     {
         $authors = $authorRepository->findAll();
 
@@ -29,6 +37,8 @@ class AuthorController extends AbstractController
                 $books[$book_key] = [
                     'id' => $book->getId(),
                     'title' => $book->getTitle(),
+                    'href' => $this->urlGenerator->generate('app_book_show', ['id' => $book->getId()]),
+
                 ];
             }
 
@@ -37,17 +47,69 @@ class AuthorController extends AbstractController
                 'firstname' => $author->getFirstname(),
                 'lastname' => $author->getLastname(),
                 'books' => $books,
+                'href' => $this->urlGenerator->generate('app_author_show', ['id' => $author->getId()]),
             ];
         }
         // -- 
         // -- Fin Pseudo serialisation
+
+
+
+        // Define the response array
+        $response = [];
+
+
+
+        // HEADER
+        // --
+
+        // Define the header of the response
+        $response['header'] = [];
+
+        // Time refereces
+        $response['header']['datetime'] = date('Y-m-d H:i:s');
+        $response['header']['timestamp'] = time();
+
+        // Response code
+        $response['header']['status'] = [];
+        $response['header']['status']['code'] = Response::HTTP_OK;
+        $response['header']['status']['text'] = Response::$statusTexts[Response::HTTP_OK];
+
+        // Define the URI EndPoint
+        $response['header']['endpoint'] = $request->getScheme()."://".$request->getHttpHost();
+
+
+
+        // CONTENT
+        // --
         
-        return $this->json([
-            'authors' => $authors
-        ]);
+        // Define the content of the response
+        $response['content'] = [];
+
+        // Define the response subject
+        $response['content']['authors'] = $authors;
+
+        // Define pagination data
+        $response['content']['pages'] = [];
+
+        $response['content']['pages']['current'] = "/authors?page=10";
+        $response['content']['pages']['first'] = "/authors?page=1";
+        $response['content']['pages']['prev'] = "/authors?page=9";
+        $response['content']['pages']['next'] = "/authors?page=11";
+        $response['content']['pages']['last'] = "/authors?page=42";
+
+
+
+
+
+        return $this->json($response);
+        
+        // return $this->json([
+        //     'authors' => $authors
+        // ]);
     }
 
-    #[Route('/author', name: 'app_author_new', methods:["POST"])]
+    #[Route('/authors', name: 'app_author_new', methods:["POST"])]
     public function new(): JsonResponse
     {
         return $this->json([
@@ -55,7 +117,7 @@ class AuthorController extends AbstractController
         ]);
     }
 
-    #[Route('/author/{id}', name: 'app_author_show', methods:["HEAD","GET"])]
+    #[Route('/authors/{id}', name: 'app_author_show', methods:["HEAD","GET"])]
     public function read(): JsonResponse
     {
         return $this->json([
@@ -63,7 +125,7 @@ class AuthorController extends AbstractController
         ]);
     }
 
-    #[Route('/author/{id}', name: 'app_author_edit', methods:["PATCH"])]
+    #[Route('/authors/{id}', name: 'app_author_edit', methods:["PATCH"])]
     public function update(): JsonResponse
     {
         return $this->json([
@@ -71,7 +133,7 @@ class AuthorController extends AbstractController
         ]);
     }
 
-    #[Route('/author/{id}', name: 'app_author_show', methods:["DELETE"])]
+    #[Route('/authors/{id}', name: 'app_author_show', methods:["DELETE"])]
     public function delete($id): JsonResponse
     {
         return $this->json([
