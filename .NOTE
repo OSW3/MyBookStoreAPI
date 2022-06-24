@@ -1,0 +1,17 @@
+# Le Maker
+composer require symfony/maker-bundle
+
+# Parser d'annotations
+composer require doctrine/annotations
+
+# ORM / Doctrine
+composer require symfony/orm-pack
+
+# Convertion d'objet en CSV / JSON / XML ...
+composer require symfony/serializer
+
+# Outils permettant de lire et d'ecrire des des objet et/ou tableaux normalisés
+composer require symfony/property-access
+
+# Json Web Token (controle d'accès API)
+lexik/jwt-authentication-bundle
